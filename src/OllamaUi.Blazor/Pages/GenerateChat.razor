@@ -1,0 +1,27 @@
+@page "/chat"
+
+<div class="container-fluid chat-container" style="max-height: 100vh">
+  <div class="row" style="overflow-x: scroll">
+    @foreach (var message in _messages)
+    {
+      <div class="message">
+        <h5>Prompt</h5>
+        <p class="user-prompt">@message.Prompt</p>
+        <br/>
+        <h5>Thinking:</h5>
+        <p class="assist-think">@message.ThinkingText</p>
+        <br/>
+        <h5>Response</h5>
+        <p class="assist-response">@message.Response</p>
+      </div>
+    }
+  </div>
+  <div class="row">
+    <div class="col-10">
+      <input style="min-width: 100%" type="text" @bind="@_userInput">
+    </div>
+    <div class="col-2">
+      <button @onclick="@SendChatMessageAsync">Send</button>
+    </div>
+  </div>
+</div>

@@ -8,12 +8,12 @@ using Microsoft.Extensions.Logging;
 
 namespace OllamaUi.Blazor.Pages;
 
-public partial class Home: ComponentBase
+public partial class GenerateMessage: ComponentBase
 {
   [Inject]
   public required IOllamaGenerationCaller OllamaGenerationCaller { get; init; }
   [Inject]
-  public required ILogger<Home> Logger { get; init; }
+  public required ILogger<GenerateMessage> Logger { get; init; }
 
   private string _thinkingRespones = string.Empty;
   private string _properResponse = string.Empty;
