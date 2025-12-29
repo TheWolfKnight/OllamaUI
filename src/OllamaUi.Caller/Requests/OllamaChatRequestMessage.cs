@@ -3,7 +3,7 @@ using OllamaUi.Caller.Enums;
 
 namespace OllamaUi.Caller.Requests;
 
-public class OllamaChatMessage
+public class OllamaChatRequestMessage
 {
   [JsonPropertyName("role")]
   public required OllamaChatMessageRole Role { get; init; }
