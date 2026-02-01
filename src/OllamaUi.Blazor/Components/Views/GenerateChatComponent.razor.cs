@@ -116,7 +116,7 @@ public partial class GenerateChatComponent: ComponentBase, IDisposable
     Result<Manifest> manifest = await GetManifestFromFileStreamAsync(manifestFile.OpenRead());
     if (manifest.IsFailed)
     {
-      Logger.LogError("Malfored manifest file for chat id {ChatId}", ChatId.ToString());
+      Logger.LogError("Malformed manifest file for chat id {ChatId}", ChatId.ToString());
       return;
     }
 
@@ -128,7 +128,15 @@ public partial class GenerateChatComponent: ComponentBase, IDisposable
 
     foreach (FileInfo messageFile in messageFilePaths)
     {
-      
+      using FileStream messageStream = messageFile.OpenRead();
+      OllamaChatContent? message = await JsonSerializer.DeserializeAsync<OllamaChatContent>(messageStream);
+      if (message is null)
+      {
+        Logger.LogError("Malformed message in \"{MessageFile}\"", messageFile.FullName);
+        return;
+      }
+
+      _messages.Add(message);
     }
   }
 
