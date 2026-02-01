@@ -57,8 +57,6 @@ public partial class Home: ComponentBase
 
   private async Task OnNewChatSentAsync(SetupNewChat setup)
   {
-    Console.WriteLine(setup.ChatId.ToString());
-
     Manifest manifest = await WriteChatManifestAsync(setup);
 
     _knownChats.Add(manifest);
