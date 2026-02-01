@@ -1,0 +1,41 @@
+
+<div class="container-fluid d-flex flex-column">
+  <div class="row flex-grow-1">
+    <div class="col-12 d-flex">
+      <RadzenDropDown Data="@_models" @bind-Value="@_selectedModel" TextProperty="@nameof(OllamaGeneralModel.Name)" />
+    </div>
+  </div>
+  <div class="row mb-1" style="height:60px">
+    <div class="col"></div>
+  </div>
+  <div class="row fixed-bottom">
+    <div class="offset-3 mb-1 col-7">
+      <RadzenTextArea id="chat-msg-input" style="width: 100%" Immediate="true" @bind-Value="@_userInput" />
+    </div>
+    <div class="col-2">
+      <RadzenButton id="send-chat-msg" Click="@(() => OnPromptSentAsync())" Icon="play_arrow"
+                    Disabled="@(string.IsNullOrWhiteSpace(_userInput))" />
+    </div>
+  </div>
+</div>
+
+<script text="text/javascript">
+  window.bind_ctrl_enter = () =>
+  {
+    const input_field = document.getElementById("chat-msg-input");
+    if (input_field === undefined || input_field === null)
+      return;
+
+    input_field.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" || !event.ctrlKey)
+        return;
+
+      const send_button = document.getElementById("send-chat-msg");
+      if (send_button === undefined || send_button === null)
+        return;
+
+      send_button.click();
+    });
+  }
+</script>
+

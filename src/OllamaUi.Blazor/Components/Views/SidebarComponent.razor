@@ -1,0 +1,36 @@
+@rendermode InteractiveServer
+
+<style>
+  .hoverable[SidebarComponent] {
+    user-select: none;
+    cursor: pointer;
+  }
+
+  .selected[SidebarComponent] {
+    background-color: #0040FF80;
+  }
+</style>
+
+<div class="container-fluid" style="width: 100%; height: 100%">
+  <RadzenCard style="width: 100%; height: 100%; overflow-y: auto">
+    <div class='row mb-2 mt-2 hoverable @GetClass("message")' @onclick='@(() => OnElementClickedAsync(_messageManifest))' SidebarComponent>
+      <div class="col-12">
+        Message
+      </div>
+    </div>
+    <div class='row mb-2 mt-2 hoverable @GetClass("chat")' @onclick='@(() => OnElementClickedAsync(_newChatManifest))' SidebarComponent>
+      <div class="col-12">
+        New chat
+      </div>
+    </div>
+    @foreach (var manifest in SavedChats)
+    {
+      <div class='row mb-2 mt-2 hoverable @GetClass(manifest.ChatId.ToString("d"))'
+           @onclick='@(() => OnElementClickedAsync(manifest))' SidebarComponent>
+        <div class="col-12">
+          @manifest.DisplayName
+        </div>
+      </div>
+    }
+  </RadzenCard>
+</div>

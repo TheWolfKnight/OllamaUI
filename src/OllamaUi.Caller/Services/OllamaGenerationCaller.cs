@@ -77,21 +77,9 @@ public class OllamaGenerationCaller: IOllamaGenerationCaller
     StreamReader reader = new StreamReader(contentStream);
     try
     {
-      int i = 0;
-      _logger.LogInformation("Begin read");
       while (await reader.ReadLineAsync(cancellationToken) is string line)
       {
         OllamaMessageResponse? chunk = JsonSerializer.Deserialize<OllamaMessageResponse>(line);
-
-        _logger.LogInformation(
-          "[DEBUG: {Time}] chunk no: {No} received data:\nchunk is not null: {ChunkExists}\nThinking: \"{ChunkThink}\",\nResponse: \"{ChunkResponse}\"",
-          DateTime.Now.ToShortTimeString(),
-          i++,
-          chunk is not null,
-          chunk?.Thinking,
-          chunk?.Response
-        );
-
         yield return chunk;
       }
     }
@@ -147,7 +135,6 @@ public class OllamaGenerationCaller: IOllamaGenerationCaller
       throw new InvalidOperationException("Could not get response due to invalid error code");
     }
 
-    int i = 0;
     Stream contentStream = await response.Content.ReadAsStreamAsync(cancellationToken);
     StreamReader reader = new StreamReader(contentStream);
 
@@ -156,16 +143,6 @@ public class OllamaGenerationCaller: IOllamaGenerationCaller
       while (await reader.ReadLineAsync(cancellationToken) is string line)
       {
         OllamaChatResponse? chunk = JsonSerializer.Deserialize<OllamaChatResponse>(line);
-
-        _logger.LogInformation(
-          "[DEBUG: {Time}] chunk no: {No} received data:\nchunk is not null: {ChunkExists}\nThinking: \"{ChunkThink}\",\nResponse: \"{ChunkResponse}\"",
-          DateTime.Now.ToShortTimeString(),
-          i++,
-          chunk is not null,
-          chunk?.Message.Thinking,
-          chunk?.Message.Content
-        );
-
         yield return chunk;
       }
     }

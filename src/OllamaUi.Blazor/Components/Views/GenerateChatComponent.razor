@@ -1,0 +1,71 @@
+
+<div class="container-fluid" style="max-height: 100vh">
+  <div class="row pb-2">
+    <div class="col-12">
+      <RadzenDropDown Data="@_models" @bind-Value="@_selectedModel" TextProperty="@nameof(OllamaGeneralModel.Name)" Disabled="true" />
+    </div>
+  </div>
+  <div class="row">
+    <div id="message-container" class="col-12" style="overflow-x: scroll">
+      @foreach (var message in _messages)
+      {
+        <FullMessageComponent Message="@message" />
+      }
+
+      @if (_currentRender is not null)
+      {
+        <div class="message w-100">
+          <h5>Prompt</h5>
+          <p class="user-prompt" style="width: 70vw">
+            @_currentRender.Prompt
+          </p>
+          <br/>
+          <h5 class="@GetThinkingClass()" @onclick="@(() => _currentRender.ShowThinking = !_currentRender.ShowThinking)">Thinking:</h5>
+          @if (_currentRender.ShowThinking || _currentRender.ActiveThinking)
+          {
+            <p class="assist-think" style="width: 70vw">
+              @_currentRender.ThinkingText
+            </p>
+          }
+          <br/>
+          <h5>Response</h5>
+          <p class="assist-response" style="width: 70vw">
+            @_currentRender.Response
+          </p>
+        </div>
+      }
+    </div>
+  </div>
+  <div class="row mb-1" style="height:60px">
+    <div class="col"></div>
+  </div>
+  <div class="row fixed-bottom">
+    <div class="offset-3 mb-1 col-7">
+      <RadzenTextArea id="chat-msg-input" style="width: 100%" Immediate="true" @bind-Value="@_userInput" />
+    </div>
+    <div class="col-2">
+      <RadzenButton @ref="@_sendMessageButton" id="send-chat-msg" Click="@(() => SendChatMessageAsync())"
+                    Icon="play_arrow" Disabled="@(_currentRender?.Done is false)" />
+    </div>
+  </div>
+</div>
+
+<script text="text/javascript">
+  window.bind_ctrl_enter = () =>
+  {
+    const input_field = document.getElementById("chat-msg-input");
+    if (input_field === undefined || input_field === null)
+      return;
+
+    input_field.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" || !event.ctrlKey)
+        return;
+
+      const send_button = document.getElementById("send-chat-msg");
+      if (send_button === undefined || send_button === null)
+        return;
+
+      send_button.click();
+    });
+  }
+</script>

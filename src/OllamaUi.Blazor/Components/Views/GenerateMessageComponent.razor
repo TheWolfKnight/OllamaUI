@@ -1,0 +1,31 @@
+﻿
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12 d-flex justify-content-start">
+      <RadzenDropDown Data="@_models" @bind-Value="@_selectedModel" Disabled="@_running">
+        <Template Context="ctx">
+          @(ctx.Name)
+        </Template>
+      </RadzenDropDown>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <h3>Thinking</h3>
+      <p>@_thinkingRespones</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <h3>Response</h3>
+      <p>@_properResponse</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <RadzenTextArea @bind-Value="@_userRequest" Disabled="@_running" />
+      <RadzenButton Click="@(() => SendMessageAsync())" Icon="play_arrow"
+                    Disabled="@_running" />
+    </div>
+  </div>
+</div>

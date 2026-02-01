@@ -1,0 +1,19 @@
+<div class="message w-100">
+  <h5>Prompt</h5>
+    <div>
+      @((MarkupString)Prompt)
+    </div>
+  <br />
+  <h5 class="@GetThinkingClass()" @onclick="@(() => ChangeShowThinking())">Thinking:</h5>
+  @if (Message.ShowThinking || Message.ActiveThinking)
+  {
+    <div>
+      @((MarkupString)Thinking)
+    </div>
+  }
+  <br />
+  <h5>Response</h5>
+    <div>
+      @((MarkupString)Response)
+    </div>
+</div>

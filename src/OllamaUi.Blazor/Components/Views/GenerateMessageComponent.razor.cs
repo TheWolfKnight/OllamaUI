@@ -1,38 +1,64 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using OllamaUi.Caller.Interfaces;
+using OllamaUi.Caller.Models;
 using OllamaUi.Caller.Requests;
 using OllamaUi.Caller.Responses;
 using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Logging;
 
-namespace OllamaUi.Blazor.Pages;
+namespace OllamaUi.Blazor.Components.Views;
 
-public partial class GenerateMessage: ComponentBase
+public partial class GenerateMessageComponent: ComponentBase
 {
   [Inject]
   public required IOllamaGenerationCaller OllamaGenerationCaller { get; init; }
   [Inject]
-  public required ILogger<GenerateMessage> Logger { get; init; }
+  public required IOllamaModelCaller OllamaModelCaller { get; init; }
+  [Inject]
+  public required ILogger<GenerateMessageComponent> Logger { get; init; }
 
   private string _thinkingRespones = string.Empty;
   private string _properResponse = string.Empty;
-
   private string _userRequest = string.Empty;
+
+  private bool _running = false;
+
+  private OllamaGeneralModel? _selectedModel;
+  private IEnumerable<OllamaGeneralModel> _models = [];
+
+  protected override async Task OnInitializedAsync()
+  {
+    var models = await OllamaModelCaller.GetOllamaModelsAsync(default);
+    if (models.IsFailed)
+    {
+      Logger.LogError(string.Join('\n', models.Errors.Select(error => error.Message)));
+      return;
+    }
+
+    _models = models.Value;
+    _selectedModel = models.Value.FirstOrDefault();
+    StateHasChanged();
+  }
 
   public async Task SendMessageAsync()
   {
+    if (_selectedModel is null)
+    {
+      Console.WriteLine("Invalid, model is not selectec.");
+      return;
+    }
+
     _thinkingRespones = string.Empty;
     _properResponse = string.Empty;
     StateHasChanged();
 
     OllamaGenerateResponseRequest request = new OllamaGenerateDefaultResponseRequest()
     {
-      Model = "gpt-oss:20b",
+      Model = _selectedModel.Name,
       Prompt = _userRequest
     };
 
     IAsyncEnumerable<OllamaMessageResponse?> responses = OllamaGenerationCaller.GenereteAResponseAsync(request, default);
+    _running = true;
+    StateHasChanged();
     int i = 0;
     await foreach (OllamaMessageResponse? chunk in responses)
     {
@@ -54,5 +80,8 @@ public partial class GenerateMessage: ComponentBase
       StateHasChanged();
       i++;
     }
+
+    _running = false;
+    StateHasChanged();
   }
 }
