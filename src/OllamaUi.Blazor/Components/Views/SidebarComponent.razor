@@ -1,6 +1,10 @@
 @rendermode InteractiveServer
 
 <style>
+  .guide-line {
+    border-bottom: 2px solid #000000;
+  }
+
   .hoverable[SidebarComponent] {
     user-select: none;
     cursor: pointer;
@@ -23,12 +27,21 @@
         New chat
       </div>
     </div>
+    <div class="row">
+      <div class="col-12 guide-line">
+      </div>
+    </div>
     @foreach (var manifest in SavedChats)
     {
-      <div class='row mb-2 mt-2 hoverable @GetClass(manifest.ChatId.ToString("d"))'
-           @onclick='@(() => OnElementClickedAsync(manifest))' SidebarComponent>
-        <div class="col-12">
+      <div class='row mb-2 mt-2 d-flex align-items-center @GetClass(manifest.ChatId.ToString("d"))' SidebarComponent>
+        <div class="col-10 hoverable" @onclick='@(() => OnElementClickedAsync(manifest))' SidebarComponent>
           @manifest.DisplayName
+        </div>
+        <div class="col-1 p-0 d-flex align-items-center hoverable" @onclick="@(() => OnEditDisplayNameClickedAsync(manifest))" SidebarComponent>
+          <RadzenIcon Icon="edit"/>
+        </div>
+        <div class="col-1 p-0 d-flex align-items-center hoverable" @onclick="@(() => OnDeleteChatClicked(manifest))" SidebarComponent>
+          <RadzenIcon Icon="delete"/>
         </div>
       </div>
     }

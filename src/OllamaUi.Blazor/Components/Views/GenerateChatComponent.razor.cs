@@ -7,7 +7,6 @@ using OllamaUi.Caller.Models;
 using OllamaUi.Caller.Requests;
 using OllamaUi.Caller.Responses;
 using FluentResults;
-using Radzen.Blazor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -31,11 +30,13 @@ public partial class GenerateChatComponent: ComponentBase, IDisposable
   [Parameter]
   public SetupNewChat? SetupNewChat { get; init; }
 
-  private RadzenButton? _sendMessageButton;
+  private bool _forceRerender = false;
+  private Guid? _currentChat = null;
 
   private List<OllamaChatContent> _messages = [];
   private OllamaChatContent? _currentRender = null;
   private string _userInput = string.Empty;
+  private CancellationTokenSource? _cancellationTokenSource = null;
 
   private IEnumerable<OllamaGeneralModel> _models = [];
   private OllamaGeneralModel? _selectedModel = null;
@@ -64,7 +65,21 @@ public partial class GenerateChatComponent: ComponentBase, IDisposable
     else
       await RestoreSessionAsync();
 
+    _currentChat = ChatId;
+    _forceRerender = true;
     StateHasChanged();
+    _forceRerender = false;
+  }
+
+  protected override async Task OnParametersSetAsync()
+  {
+    if (_currentChat != ChatId)
+    {
+      await OnInitializedAsync();
+    }
+    _forceRerender = true;
+    StateHasChanged();
+    _forceRerender = false;
   }
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -79,6 +94,7 @@ public partial class GenerateChatComponent: ComponentBase, IDisposable
 
   private async Task RestoreSessionAsync()
   {
+    _messages.Clear();
     string saveLocation = Path.Combine(PageState.ChatSaveLocation, ChatId.ToString());
     if (!Directory.Exists(saveLocation))
     {
@@ -157,9 +173,6 @@ public partial class GenerateChatComponent: ComponentBase, IDisposable
 
   private async Task SetupNewChatAsync(SetupNewChat setup)
   {
-    if (_sendMessageButton is null)
-      return;
-
     _selectedModel = _models.FirstOrDefault(model => model.Name == setup.ModelName);
     _userInput = setup.Prompt;
 
@@ -176,6 +189,11 @@ public partial class GenerateChatComponent: ComponentBase, IDisposable
       Logger.LogError("Can not send message to an unknown model");
       return;
     }
+
+    if (_cancellationTokenSource?.IsCancellationRequested is true)
+      _cancellationTokenSource.Dispose();
+
+    _cancellationTokenSource = new();
 
     IAsyncEnumerable<OllamaChatResponse?> chunks = await SendChatRequestAsync(_selectedModel.Name);
     OllamaChatContent content = await ConsumeMessageChunksAsync(chunks);
@@ -222,7 +240,7 @@ public partial class GenerateChatComponent: ComponentBase, IDisposable
       }
     };
 
-    IAsyncEnumerable<OllamaChatResponse?> chunks = GeneratorCaller.GenerateChatMessageAsync(request, default);
+    IAsyncEnumerable<OllamaChatResponse?> chunks = GeneratorCaller.GenerateChatMessageAsync(request, _cancellationTokenSource?.Token ?? default);
 
     return Task.FromResult(chunks);
   }
@@ -273,6 +291,21 @@ public partial class GenerateChatComponent: ComponentBase, IDisposable
 
     return nextResponse;
   }
+
+  private async Task CancelGenerationAsync()
+  {
+    if (_cancellationTokenSource is null)
+      return;
+
+    await _cancellationTokenSource.CancelAsync();
+    _cancellationTokenSource.Dispose();
+
+    _thinkingBuilder.Clear();
+    _responseBuilder.Clear();
+
+    _currentRender = null;
+  }
+
 
   private async Task WriteResponseToSaveLocationAsync(OllamaChatContent content, int number)
   {

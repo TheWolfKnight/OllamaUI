@@ -7,6 +7,8 @@ namespace OllamaUi.Blazor.Components.Views;
 public partial class FullMessageComponent: ComponentBase
 {
   [Parameter, EditorRequired]
+  public required bool ForceRerender { get; init; }
+  [Parameter, EditorRequired]
   public required OllamaChatContent Message { get; init; }
 
   private string Prompt => Markdown.ToHtml(Message.Prompt);
@@ -17,13 +19,10 @@ public partial class FullMessageComponent: ComponentBase
 
   protected override bool ShouldRender()
   {
-    if (_shouldRender)
-    {
-      _shouldRender = false;
-      return true;
-    }
+    var shouldRerender = _shouldRender || ForceRerender;
+    _shouldRender = false;
 
-    return false;
+    return shouldRerender;
   }
 
   private string GetThinkingClass()

@@ -104,6 +104,26 @@ public partial class Home: ComponentBase
     return manifest;
   }
 
+  private async Task OnDeleteClicked(Manifest manifest)
+  {
+    await Task.CompletedTask;
+    string saveLocation = Path.Combine(PageState.ChatSaveLocation, manifest.ChatId.ToString("d"));
+    if (!Path.Exists(saveLocation))
+      return;
+
+    _knownChats.Remove(manifest);
+
+    Directory.Delete(saveLocation, recursive: true);
+    if (_render.ChatId == manifest.ChatId)
+      _render = new ManifestSpecial
+      {
+        ChatId = Guid.Empty,
+        DisplayName = "chat",
+        CreationDate = DateTime.MinValue,
+        OllamaModelName = "",
+      };
+  }
+
   private async Task OnElementClickedAsync(Manifest manifest)
   {
     _render = manifest;

@@ -9,7 +9,7 @@
     <div id="message-container" class="col-12" style="overflow-x: scroll">
       @foreach (var message in _messages)
       {
-        <FullMessageComponent Message="@message" />
+        <FullMessageComponent ForceRerender="@_forceRerender" Message="@message" />
       }
 
       @if (_currentRender is not null)
@@ -44,8 +44,16 @@
       <RadzenTextArea id="chat-msg-input" style="width: 100%" Immediate="true" @bind-Value="@_userInput" />
     </div>
     <div class="col-2">
-      <RadzenButton @ref="@_sendMessageButton" id="send-chat-msg" Click="@(() => SendChatMessageAsync())"
-                    Icon="play_arrow" Disabled="@(_currentRender?.Done is false)" />
+      @if (_currentRender is null)
+      {
+        <RadzenButton id="send-chat-msg" Click="@(() => SendChatMessageAsync())"
+                      Icon="play_arrow" Disabled="@(_currentRender?.Done is false)" />
+      }
+      else
+      {
+        <RadzenButton id="cancel-chat-msg" Click="@(() => CancelGenerationAsync())"
+                      Icon="pause" />
+      }
     </div>
   </div>
 </div>

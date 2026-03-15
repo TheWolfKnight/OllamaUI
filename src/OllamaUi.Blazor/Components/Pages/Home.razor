@@ -5,12 +5,12 @@
 
 <div class="container-fluid">
   <div class="row">
-    <div class="col-2 ps-0 fixed-bottom" style="height: 95vh; margin-top: 2.5vh; margin-bottom: 2.5vh;">
+    <div class="col-2 col-lg-3 ps-0 fixed-bottom" style="height: 95vh; margin-top: 2.5vh; margin-bottom: 2.5vh;">
       <SidebarComponent @bind-SelectedElement="@_render"
-                        SavedChats="@_knownChats" />
+                        SavedChats="@_knownChats" DeleteChatClicked="@OnDeleteClicked" />
     </div>
-    <div class="col-2 pe-2"></div>
-    <div class="col-9">
+    <div class="col-2 col-lg-3 pe-2"></div>
+    <div class="col-10 col-lg-9">
       @if (_render is  ManifestSpecial { DisplayName: "message" })
       {
         <GenerateMessageComponent />

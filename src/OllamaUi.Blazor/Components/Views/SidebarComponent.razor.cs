@@ -9,6 +9,8 @@ public partial class SidebarComponent: ComponentBase
   public Manifest? SelectedElement { get; set; } = null!;
   [Parameter, EditorRequired]
   public required EventCallback<Manifest> SelectedElementChanged { get; init; }
+  [Parameter, EditorRequired]
+  public required EventCallback<Manifest> DeleteChatClicked { get; init; }
 
   [Parameter, EditorRequired]
   public required List<Manifest> SavedChats { get; init; }
@@ -53,5 +55,16 @@ public partial class SidebarComponent: ComponentBase
     return ident == element
       ? "selected"
       : "";
+  }
+
+  private async Task OnDeleteChatClicked(Manifest manifest)
+  {
+    if (DeleteChatClicked is EventCallback<Manifest> callback)
+      await callback.InvokeAsync(manifest);
+  }
+
+  private async Task OnEditDisplayNameClickedAsync(Manifest manifest)
+  {
+    
   }
 }
